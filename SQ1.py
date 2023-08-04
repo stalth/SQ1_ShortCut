@@ -1,10 +1,14 @@
 import sys
 import networkx as nx
+
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools
 import random
+import pickle
 import time
+
+
 
 def sq1_experiments(n, k, failure_num, rep, seed, ran_dom):
     if ran_dom:
@@ -15,20 +19,20 @@ def sq1_experiments(n, k, failure_num, rep, seed, ran_dom):
 
 #Graphen erstellen
 def create_graphs(n, k, rep, seed):
-    g = nx. random_regular_graph(k,n)
+    g = nx.random_regular_graph(k,n)
     while nx.edge_connectivity(g) < k: #Konnektivität von k oder größer, sonst neuen Graph erstellen
            g = nx.random_regular_graph(k, n).to_directed()
     g.graph['seed'] = seed
+    # pickle.dump(g,  open( "./save.p", "wb" ))
     g.graph['k'] = k
-    f = open('results/' + 'SQ1_ShortCut' + str(seed) + '_graph_' + str(n) + '_' + str(rep) + '.txt', 'w')
-    f.write('n=' + str(n) + ', k=' + str(k) + ', rep=' + str(rep) + ', seed=' + str(seed)) #!!!!!!!!!!!!!!!!!!!!!!!!!
-    f.close() 
+    with open('results/' + 'SQ1_ShortCut' + str(seed) + '_graph_' + str(n) + '_' + str(rep) + '.txt', 'w') as file:
+        # file.write('n=' + str(n) + ', k=' + str(k) + ', rep=' + str(rep) + ', seed=' + str(seed)) 
+        file.write(f"{n=}, {k=}, {rep=}, {seed=}") 
     return g 
-
 
 if __name__ == "__main__":
     start = time.time()
-
+    # favorite_color = pickle.load( open( "./save.p", "rb" ) )
     #parameters
     seed = 1
     n = 100
