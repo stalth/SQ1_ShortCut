@@ -1,9 +1,10 @@
 import sys
 import networkx as nx
-
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools
+from networkx.algorithms.connectivity import build_auxiliary_edge_connectivity
+from networkx.algorithms.flow import build_residual_network
 import random
 import pickle
 import time
@@ -14,6 +15,12 @@ def sq1_experiments(n, k, failure_num, rep, seed, ran_dom):
     if ran_dom:
         for i in range(rep):
             g = create_graphs(n, k, i, seed)
+            nodes = list(g.nodes())
+            source = random.choice(nodes)
+            destination = random.choice(nodes)
+            while destination == source:
+                destination = random.choice(nodes)
+            disjoint_path_list = get_disjoint_path(g, destination)
     else:
         g = nx.read_gml("benchmark_graphs/BtEurope.gml")
 
@@ -29,6 +36,18 @@ def create_graphs(n, k, rep, seed):
         # file.write('n=' + str(n) + ', k=' + str(k) + ', rep=' + str(rep) + ', seed=' + str(seed)) 
         file.write(f"{n=}, {k=}, {rep=}, {seed=}") 
     return g 
+
+def get_disjoint_path(g, d):
+    SQ1 = {}
+    H = build_auxiliary_edge_connectivity(g)
+    R = build_residual_network(H, 'capacity')
+    SQ1 = {n: {} for n in g}
+    for u in g.nodes():
+        if (u != d):
+            k = sorted(list(nx.edge_disjoint_paths(
+                g, u, d, auxiliary=H, residual=R)), key=len)
+            SQ1[u][d] = k
+    return SQ1
 
 if __name__ == "__main__":
     start = time.time()
