@@ -10,8 +10,8 @@ import pickle
 import time
 
 
-
-def sq1_experiments(n, k, failure_num, rep, seed, ran_dom):
+#SQ1 experiments
+def sq1_experiments(n, k, failure_num, rep, seed, ran_dom, fail_random):
     if ran_dom:
         for i in range(rep):
             g = create_graphs(n, k, i, seed)
@@ -21,10 +21,11 @@ def sq1_experiments(n, k, failure_num, rep, seed, ran_dom):
             while destination == source:
                 destination = random.choice(nodes)
             disjoint_path_list = get_disjoint_path(g, destination)
+            fails_list = get_fails_list(g, source, destination, disjoint_path_list, fail_random, failure_num)
     else:
         g = nx.read_gml("benchmark_graphs/BtEurope.gml")
 
-#Graphen erstellen
+#Create a graph
 def create_graphs(n, k, rep, seed):
     g = nx.random_regular_graph(k,n)
     while nx.edge_connectivity(g) < k: #Konnektivität von k oder größer, sonst neuen Graph erstellen
@@ -37,6 +38,7 @@ def create_graphs(n, k, rep, seed):
         file.write(f"{n=}, {k=}, {rep=}, {seed=}") 
     return g 
 
+#Create a list of edge-disjoint paths to destination, source nodes vary
 def get_disjoint_path(g, d):
     SQ1 = {}
     H = build_auxiliary_edge_connectivity(g)
@@ -49,6 +51,21 @@ def get_disjoint_path(g, d):
             SQ1[u][d] = k
     return SQ1
 
+def routingSQ1(source, destination, fails, shortCut):
+    alla = 2
+
+#Create a list of fails, either random or specifically on edge-disjoint paths
+def get_fails_list(g, source, destination, disjoint_path_list, fail_random, failure_num):
+    edge_list = g.edges()
+    fails_list = []
+    if fail_random:
+        for i in range(failure_num):
+            fails_list.append(random.choice(edge_list))
+    else:
+        alla = 3
+    return fails_list
+
+#Initialize parameters for experiments, take runtime, start experiments
 if __name__ == "__main__":
     start = time.time()
     # favorite_color = pickle.load( open( "./save.p", "rb" ) )
@@ -59,10 +76,11 @@ if __name__ == "__main__":
     k = 8
     failure_num = 40
     ran_dom = True
+    fail_random = True
     #G = nx.Graph()
     #G.add_edges_from([(1, 4), (4, 5), (1, 2), (2,3), (3,5), (3,6), (6,5), (2,4)])
     
-    sq1_experiments(n, k, failure_num, rep, seed, ran_dom)
+    sq1_experiments(n, k, failure_num, rep, seed, ran_dom, fail_random)
  
     end = time.time()
     print(end-start)
