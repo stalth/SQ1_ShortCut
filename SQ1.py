@@ -16,13 +16,27 @@ def sq1_experiments(n, k, failure_num, rep, seed, ran_dom, fail_random):
         for i in range(rep):
             g = create_graphs(n, k, i, seed)
             nodes = list(g.nodes())
+            print(len(list(g.edges())))
             source = random.choice(nodes)
             destination = random.choice(nodes)
             while destination == source:
                 destination = random.choice(nodes)
             disjoint_path_list = get_disjoint_path(g, destination)
+            disjoint_path_list_shortcut = disjoint_path_list
             fails_list = get_fails_list(g, source, destination, disjoint_path_list, fail_random, failure_num)
-            [failedRouting, hops, switches, detour_edges] = routingSQ1(disjoint_path_list, source, destination, n, fails_list)
+
+            hop_list = []
+            hop_list_shortcut = []
+            dis_joint_path = disjoint_path_list_shortcut[source][destination]
+
+            for j in range(0, len(fails_list)):
+                fails_sublist = fails_list[:j]
+                [_, hops, _, detour]= routingSQ1(disjoint_path_list, source, destination, n, fails_sublist)
+                #[_, hopsS, _, detourS] = routingSQ1(disjoint_path_list_shortcut, source, destination, n, fails_sublist) 
+                hop_list.append(hops)
+                #hop_list_shortcut.append(hopsS)
+                hop_list_shortcut.append(len(disjoint_path_list_shortcut[source][destination][j])-1)
+            pass
     else:
         g = nx.read_gml("benchmark_graphs/BtEurope.gml")
 
@@ -52,6 +66,7 @@ def get_disjoint_path(g, destination):
             SQ1[u][destination] = k
     return SQ1
 
+#Routing
 def routingSQ1(SQ1, source, destination, n, fails):
     curRoute = SQ1[source][destination][0]
     k = len(SQ1[source][destination])
@@ -86,17 +101,16 @@ def routingSQ1(SQ1, source, destination, n, fails):
 #Create a list of fails, either random or specifically on edge-disjoint paths
 def get_fails_list(g, source, destination, disjoint_path_list, fail_random, failure_num):
     edge_list = list(g.edges())
-    num_edgedesjointpaths = len(disjoint_path_list[source][destination])
+    pathList = disjoint_path_list[source][destination]
+    num_edgedesjointpaths = len(pathList)
     fails_list = []
     if fail_random:
         for i in range(failure_num):
             fails_list.append(random.choice(edge_list))
     else:
         for i in range(num_edgedesjointpaths):
-            nodeindex_in_path = random.randint(0, len(disjoint_path_list[source][destination][i])-1)
-            while nodeindex_in_path == len(disjoint_path_list[source][destination][i])-1:
-                nodeindex_in_path = random.randint(0, len(disjoint_path_list[source][destination][i])-1)
-            fails_list.append((disjoint_path_list[source][destination][i][nodeindex_in_path], disjoint_path_list[source][destination][i][nodeindex_in_path+1]))
+            nodeindex_in_path = random.randint(0, len(pathList[i])-2)
+            fails_list.append((pathList[i][nodeindex_in_path], pathList[i][nodeindex_in_path+1]))
     return fails_list
 
 #Initialize parameters for experiments, take runtime, start experiments
@@ -106,9 +120,9 @@ if __name__ == "__main__":
     #parameters
     seed = 1
     n = 100
-    rep = 2
+    rep = 1
     k = 8
-    failure_num = 40
+    failure_num = 200
     ran_dom = True
     fail_random = False
     #G = nx.Graph()
