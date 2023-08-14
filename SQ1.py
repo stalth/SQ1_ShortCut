@@ -22,6 +22,7 @@ def sq1_experiments(n, k, failure_num, rep, seed, ran_dom, fail_random):
                 destination = random.choice(nodes)
             disjoint_path_list = get_disjoint_path(g, destination)
             fails_list = get_fails_list(g, source, destination, disjoint_path_list, fail_random, failure_num)
+            [failedRouting, hops, switches, detour_edges] = routingSQ1(disjoint_path_list, source, destination, n, fails_list)
     else:
         g = nx.read_gml("benchmark_graphs/BtEurope.gml")
 
@@ -51,8 +52,36 @@ def get_disjoint_path(g, destination):
             SQ1[u][destination] = k
     return SQ1
 
-def routingSQ1(source, destination, fails, shortCut):
-    alla = 2
+def routingSQ1(SQ1, source, destination, n, fails):
+    curRoute = SQ1[source][destination][0]
+    k = len(SQ1[source][destination])
+    detour_edges = []
+    index = 1
+    hops = 0
+    switches = 0
+    curNode = source  # current node
+    #n = len(T[0].nodes())
+    while (curNode != destination):
+        nxt = curRoute[index]
+        if (nxt, curNode) in fails or (curNode, nxt) in fails:
+            for i in range(2, index+1):
+                detour_edges.append((curNode, curRoute[index-i]))
+                curNode = curRoute[index-i]
+            switches += 1
+            curNode = source
+            hops += (index-1)
+            curRoute = SQ1[source][destination][switches % k]
+            index = 1
+        else:
+            if switches > 0:
+                detour_edges.append((curNode, nxt))
+            curNode = nxt
+            index += 1
+            hops += 1
+        if hops > 3*n or switches > k*n:
+            print("cycle square one")
+            return (True, hops, switches, detour_edges)
+    return (False, hops, switches, detour_edges)
 
 #Create a list of fails, either random or specifically on edge-disjoint paths
 def get_fails_list(g, source, destination, disjoint_path_list, fail_random, failure_num):
