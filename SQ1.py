@@ -22,17 +22,17 @@ def sq1_experiments(n, k, failure_num, rep, seed, ran_dom, fail_random):
             g = create_graphs(n, k, i, seed)
             nodes = list(g.nodes())
             edges = list(g.edges())
+            if fail_random:
+                filename_pickle = str('results/' + 'SQ1_ShortCut_' + str(seed) + '_graph_' + str(ran_dom) + '_' + str(n) + '_' + str(len(edges)) + '_' + str(i) + '_' + str(fail_random) + '_' + str(failure_num) + '.pickle')
+            else:
+                filename_pickle = str('results/' + 'SQ1_ShortCut_' + str(seed) + '_graph_' + str(ran_dom) + '_' + str(n) + '_' + str(len(edges)) + '_' + str(i) + '_' + str(fail_random) + '.pickle')
             for i in nodes:
                 source = i
                 for j in nodes:
                     destination = j
                     if source == destination:
                         pass
-                    else:                        
-            #source = random.choice(nodes)
-            #destination = random.choice(nodes)
-            #while destination == source:
-            #    destination = random.choice(nodes)
+                    else:                    
                         disjoint_path_list = get_disjoint_path(g, destination)
                         disjoint_path_list_shortcut = disjoint_path_list
                         fails_list = get_fails_list(g, source, destination, disjoint_path_list, fail_random, failure_num)
