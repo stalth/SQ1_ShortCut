@@ -8,55 +8,63 @@ from networkx.algorithms.flow import build_residual_network
 import random
 import pickle
 import time
+from obj_class_pickle import DataGraphs
 
 
 #SQ1 experiments
 def sq1_experiments(n, k, failure_num, rep, seed, ran_dom, fail_random):
     #hops_array = np.array([[1,4,7,3,4,3,4,3]])
     #hopsS_array = np.array([[1,4,7,3,4,3,4,3]])
-    hops_list_rep = []
-    hops_list_shortcut_rep = []
+    # hops_list_rep = []
+    # hops_list_shortcut_rep = []
     if ran_dom:        
         for i in range(rep):
             start_rep = time.time()
             g = create_graphs(n, k, i, seed)
             nodes = list(g.nodes())
             edges = list(g.edges())
+            resultHops = {}
+            resultHopsShortCut = {}
             if fail_random:
-                filename_pickle = str('results/' + 'SQ1_ShortCut_' + str(seed) + '_graph_' + str(ran_dom) + '_' + str(n) + '_' + str(len(edges)) + '_' + str(i) + '_' + str(fail_random) + '_' + str(failure_num) + '.pickle')
+                filename_pickle = 'results/' + 'SQ1_ShortCut_' + str(seed) + '_graph_' + str(ran_dom) + '_' + str(n) + '_' + str(len(edges)) + '_' + str(i) + '_' + str(fail_random) + '_' + str(failure_num) + '.pickle'
             else:
-                filename_pickle = str('results/' + 'SQ1_ShortCut_' + str(seed) + '_graph_' + str(ran_dom) + '_' + str(n) + '_' + str(len(edges)) + '_' + str(i) + '_' + str(fail_random) + '.pickle')
-            for i in nodes:
-                source = i
-                for j in nodes:
-                    destination = j
+                filename_pickle = 'results/' + 'SQ1_ShortCut_' + str(seed) + '_graph_' + str(ran_dom) + '_' + str(n) + '_' + str(len(edges)) + '_' + str(i) + '_' + str(fail_random) + '.pickle'
+            for source in nodes:
+                resultHops[source] = {}
+                resultHopsShortCut[source] = {}
+                for destination in nodes:
                     if source == destination:
-                        pass
-                    else:                    
-                        disjoint_path_list = get_disjoint_path(g, destination)
-                        disjoint_path_list_shortcut = disjoint_path_list
-                        fails_list = get_fails_list(g, source, destination, disjoint_path_list, fail_random, failure_num)
+                        continue
+                
+                    disjoint_path_list = get_disjoint_path(g, destination)
+                    disjoint_path_list_shortcut = disjoint_path_list
+                    fails_list = get_fails_list(g, source, destination, disjoint_path_list, fail_random, failure_num)
 
-                        hop_list = []
-                        hop_list_shortcut = []
-                        dis_joint_path = disjoint_path_list_shortcut[source][destination]
-                        dis_joint_path_shortcut = dis_joint_path
+                    hop_list = []
+                    hop_list_shortcut = []
+                    dis_joint_path = disjoint_path_list_shortcut[source][destination]
+                    dis_joint_path_shortcut = dis_joint_path
 
-                        for j in range(0, len(fails_list)):
-                            fails_sublist = fails_list[:j]
-                            [_, hops, _, detour, _]= routingSQ1(dis_joint_path, source, destination, n, fails_sublist, sc_bool= False)
-                            [_, hopsS, _, detourS, dis_joint_path_shortcut] = routingSQ1(dis_joint_path_shortcut, source, destination, n, fails_sublist, sc_bool= True) 
-                            hop_list.append(hops)
-                            hop_list_shortcut.append(hopsS)
-                            #hop_list_shortcut.append(len(disjoint_path_list_shortcut[source][destination][j])-1)
-                        #hops_array = np.append(hops_array,[hop_list],axis=0)
-                        #hopsS_array = np.append(hopsS_array,[hop_list_shortcut],axis=0)
-                        hops_list_rep.append(hop_list)
-                        hops_list_shortcut_rep.append(hop_list_shortcut)
-                        #array2 = np.append(array,[liste], axis=0)
+                    for j in range(0, len(fails_list)):
+                        fails_sublist = fails_list[:j]
+                        [_, hops, _, detour, _]= routingSQ1(dis_joint_path, source, destination, n, fails_sublist, sc_bool= False)
+                        [_, hopsS, _, detourS, dis_joint_path_shortcut] = routingSQ1(dis_joint_path_shortcut, source, destination, n, fails_sublist, sc_bool= True) 
+                        hop_list.append(hops)
+                        hop_list_shortcut.append(hopsS)
+                        #hop_list_shortcut.append(len(disjoint_path_list_shortcut[source][destination][j])-1)
+                    #hops_array = np.append(hops_array,[hop_list],axis=0)
+                    #hopsS_array = np.append(hopsS_array,[hop_list_shortcut],axis=0)
+                    # hops_list_rep.append(hop_list)
+                    # hops_list_shortcut_rep.append(hop_list_shortcut)
+                    #array2 = np.append(array,[liste], axis=0)
+
+                    resultHops[source][destination] = hop_list
+                    resultHopsShortCut[source][destination] = hop_list_shortcut
             end_rep = time.time()
             print(time.asctime( time.localtime(start_rep)))
-            print(time.asctime( time.localtime(end_rep)))        
+            print(time.asctime( time.localtime(end_rep)))   
+            toPickle = DataGraphs(seed, ran_dom, nodes, edges, i, fail_random, failure_num, resultHops, resultHopsShortCut) 
+            toPickle.save(filename_pickle)
     else:
         g = nx.read_gml("benchmark_graphs/BtEurope.gml")
 
@@ -95,7 +103,7 @@ def doesntContainFail(path, fails):
 def routingSQ1(SQ1, source, destination, n, fails, sc_bool):
     if sc_bool:
         newList = [path for path in SQ1 if doesntContainFail(path, fails)]
-        return (False, len(newList[0]-1), 2, None, newList)
+        return (False, len(newList[0])-1, 2, None, newList)
     else:
         curRoute = SQ1[0]
         k = len(SQ1)
