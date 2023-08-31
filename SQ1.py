@@ -19,19 +19,22 @@ def sq1_experiments(n, k, failure_num, rep, seed, ran_dom, fail_random):
     # hops_list_shortcut_rep = []
     if ran_dom:        
         for i in range(rep):
+            print('rep: '+ str(i))
             start_rep = time.time()
             g = create_graphs(n, k, i, seed)
             nodes = list(g.nodes())
             edges = list(g.edges())
             resultHops = {}
             resultHopsShortCut = {}
+            resultShortestPathForStretch = {}
             if fail_random:
-                filename_pickle = 'results/' + 'SQ1_ShortCut_' + str(seed) + '_graph_' + str(ran_dom) + '_' + str(n) + '_' + str(len(edges)) + '_' + str(i) + '_' + str(fail_random) + '_' + str(failure_num) + '.pickle'
+                filename_pickle = 'results/50nodes/' + 'SQ1_ShortCut_' + str(seed) + '_graph_' + str(ran_dom) + '_' + str(n) + '_' + str(len(edges)) + '_' + str(i) + '_' + str(fail_random) + '_' + str(failure_num) + '.pickle'
             else:
-                filename_pickle = 'results/' + 'SQ1_ShortCut_' + str(seed) + '_graph_' + str(ran_dom) + '_' + str(n) + '_' + str(len(edges)) + '_' + str(i) + '_' + str(fail_random) + '.pickle'
+                filename_pickle = 'results/50nodes/' + 'SQ1_ShortCut_' + str(seed) + '_graph_' + str(ran_dom) + '_' + str(n) + '_' + str(len(edges)) + '_' + str(i) + '_' + str(fail_random) + '.pickle'
             for source in nodes:
                 resultHops[source] = {}
-                resultHopsShortCut[source] = {}
+                resultHopsShortCut[source] = {}  
+                resultShortestPathForStretch[source] = {}              
                 for destination in nodes:
                     if source == destination:
                         continue
@@ -44,6 +47,7 @@ def sq1_experiments(n, k, failure_num, rep, seed, ran_dom, fail_random):
                     hop_list_shortcut = []
                     dis_joint_path = disjoint_path_list_shortcut[source][destination]
                     dis_joint_path_shortcut = dis_joint_path
+                    resultShortestPathForStretch[source][destination] = len(dis_joint_path[0])-1
 
                     for j in range(0, len(fails_list)):
                         fails_sublist = fails_list[:j]
@@ -63,7 +67,7 @@ def sq1_experiments(n, k, failure_num, rep, seed, ran_dom, fail_random):
             end_rep = time.time()
             print(time.asctime( time.localtime(start_rep)))
             print(time.asctime( time.localtime(end_rep)))   
-            toPickle = DataGraphs(seed, ran_dom, nodes, edges, i, fail_random, failure_num, resultHops, resultHopsShortCut) 
+            toPickle = DataGraphs(seed, ran_dom, nodes, edges, i, resultShortestPathForStretch, fail_random, failure_num, resultHops, resultHopsShortCut) 
             toPickle.save(filename_pickle)
     else:
         g = nx.read_gml("benchmark_graphs/BtEurope.gml")
@@ -156,21 +160,21 @@ def get_fails_list(g, source, destination, disjoint_path_list, fail_random, fail
 #Initialize parameters for experiments, take runtime, start experiments
 if __name__ == "__main__":
     start = time.time()
+    print(time.asctime( time.localtime(start)))
     # favorite_color = pickle.load( open( "./save.p", "rb" ) )
     #parameters
     seed = 1
-    n = 40
-    rep = 2
+    n = 50
+    rep = 100
     k = 8
     failure_num = 200
     ran_dom = True
     fail_random = False
     #G = nx.Graph()
     #G.add_edges_from([(1, 4), (4, 5), (1, 2), (2,3), (3,5), (3,6), (6,5), (2,4)])
-    
+    print('start')
     sq1_experiments(n, k, failure_num, rep, seed, ran_dom, fail_random)
- 
+    print('ende')
     end = time.time()
     print(end-start)
-    print(time.asctime( time.localtime(start)))
     print(time.asctime( time.localtime(end)))
