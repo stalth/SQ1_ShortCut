@@ -13,10 +13,6 @@ from obj_class_pickle import DataGraphs
 
 #SQ1 experiments
 def sq1_experiments(n, k, failure_num, rep, seed, ran_dom, fail_random):
-    #hops_array = np.array([[1,4,7,3,4,3,4,3]])
-    #hopsS_array = np.array([[1,4,7,3,4,3,4,3]])
-    # hops_list_rep = []
-    # hops_list_shortcut_rep = []
     if ran_dom:        
         for i in range(rep):
             print('rep: '+ str(i))
@@ -28,9 +24,9 @@ def sq1_experiments(n, k, failure_num, rep, seed, ran_dom, fail_random):
             resultHopsShortCut = {}
             resultShortestPathForStretch = {}
             if fail_random:
-                filename_pickle = 'results/50nodes/' + 'SQ1_ShortCut_' + str(seed) + '_graph_' + str(ran_dom) + '_' + str(n) + '_' + str(len(edges)) + '_' + str(i) + '_' + str(fail_random) + '_' + str(failure_num) + '.pickle'
+                filename_pickle = 'results/200nodes/' + 'SQ1_ShortCut_' + str(seed) + '_graph_' + str(ran_dom) + '_' + str(n) + '_' + str(len(edges)) + '_' + str(i) + '_' + str(fail_random) + '_' + str(failure_num) + '.pickle'
             else:
-                filename_pickle = 'results/50nodes/' + 'SQ1_ShortCut_' + str(seed) + '_graph_' + str(ran_dom) + '_' + str(n) + '_' + str(len(edges)) + '_' + str(i) + '_' + str(fail_random) + '.pickle'
+                filename_pickle = 'results/200nodes/' + 'SQ1_ShortCut_' + str(seed) + '_graph_' + str(ran_dom) + '_' + str(n) + '_' + str(len(edges)) + '_' + str(i) + '_' + str(fail_random) + '.pickle'
             for source in nodes:
                 resultHops[source] = {}
                 resultHopsShortCut[source] = {}  
@@ -80,9 +76,9 @@ def create_graphs(n, k, rep, seed):
     g.graph['seed'] = seed
     # pickle.dump(g,  open( "./save.p", "wb" ))
     g.graph['k'] = k
-    with open('results/' + 'SQ1_ShortCut' + str(seed) + '_graph_' + str(n) + '_' + str(rep) + '.txt', 'w') as file:
+    #with open('results/' + 'SQ1_ShortCut' + str(seed) + '_graph_' + str(n) + '_' + str(rep) + '.txt', 'w') as file:
         # file.write('n=' + str(n) + ', k=' + str(k) + ', rep=' + str(rep) + ', seed=' + str(seed)) 
-        file.write(f"{n=}, {k=}, {rep=}, {seed=}") 
+        #file.write(f"{n=}, {k=}, {rep=}, {seed=}") 
     return g 
 
 #Create a list of edge-disjoint paths to destination, source nodes vary
@@ -164,7 +160,7 @@ if __name__ == "__main__":
     # favorite_color = pickle.load( open( "./save.p", "rb" ) )
     #parameters
     seed = 1
-    n = 50
+    n = 200
     rep = 100
     k = 8
     failure_num = 200

@@ -1,12 +1,13 @@
 import pickle
 
 class DataGraphs():
-    def __init__(self, seed, ran_dom, n, e, rep, fail_random, failure_num, hops_dict, hops_dict_sc):
+    def __init__(self, seed, ran_dom, n, e, rep, shortest_path, fail_random, failure_num, hops_dict, hops_dict_sc):
         self.seed = seed
         self.ran_dom = ran_dom
         self.n = n
         self.e = e
         self.rep = rep
+        self.shortest_path = shortest_path
         self.fail_random = fail_random
         self.failure_num = failure_num
         self.hops_dict = hops_dict
